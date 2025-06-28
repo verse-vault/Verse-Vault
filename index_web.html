@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verse Vault</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Basic Reset & Font */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        /* App Container */
+        #app-container {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 32px;
+            width: 100%;
+            max-width: 960px;
+            border: 1px solid #e5e7eb;
+            box-sizing: border-box;
+            margin: 20px; /* Add margin for smaller screens */
+        }
+
+        /* Header */
+        h1 {
+            font-size: 36px;
+            font-weight: 800;
+            text-align: center;
+            color: #1e40af;
+            margin-bottom: 32px;
+            letter-spacing: -0.025em;
+        }
+        h1 i {
+            color: #2563eb;
+            margin-right: 12px;
+        }
+
+        /* Section Headers */
+        h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+        h3 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        h3 i {
+            margin-right: 12px;
+        }
+
+        /* Buttons */
+        button {
+            padding: 12px 24px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
+
+        button i {
+            margin-right: 8px;
+        }
+
+        #add-verse-btn {
+            background-color: #2563eb;
+            color: #ffffff;
+        }
+        #add-verse-btn:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        #back-to-main-btn {
+            background-color: #e5e7eb;
+            color: #1f2937;
+        }
+        #back-to-main-btn:hover {
+            background-color: #d1d5db;
+            transform: translateX(-2px);
+        }
+
+        #fetch-verse-btn {
+            background-color: #10b981;
+            color: #ffffff;
+        }
+        #fetch-verse-btn:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+        }
+
+        #save-fetched-verse-btn {
+            background-color: #2563eb;
+            color: #ffffff;
+            width: 100%;
+        }
+        #save-fetched-verse-btn:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        #save-custom-verse-btn {
+            background-color: #f59e0b;
+            color: #ffffff;
+            width: 100%;
+        }
+        #save-custom-verse-btn:hover {
+            background-color: #d97706;
+            transform: translateY(-2px);
+        }
+
+        .delete-verse-btn {
+            background: none;
+            box-shadow: none;
+            color: #ef4444;
+            padding: 0;
+            margin: 0;
+            transition: color 0.2s ease-in-out;
+        }
+        .delete-verse-btn:hover {
+            color: #dc2626;
+            transform: none; /* Override translateY for delete button */
+        }
+
+        /* Form Elements */
+        label {
+            display: block;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            transition: all 0.15s ease-in-out;
+            box-sizing: border-box; /* Ensure padding doesn't increase width */
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+        textarea {
+            resize: vertical;
+        }
+
+        /* Checkbox */
+        input[type="checkbox"] {
+            height: 20px;
+            width: 20px;
+            color: #2563eb;
+            border-color: #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+        input[type="checkbox"]:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+
+        /* Layout Helpers */
+        .hidden {
+            display: none !important;
+        }
+        .space-y-6 > *:not(:last-child) {
+            margin-bottom: 24px;
+        }
+        .space-y-8 > *:not(:last-child) {
+            margin-bottom: 32px;
+        }
+        .flex {
+            display: flex;
+        }
+        .justify-between {
+            justify-content: space-between;
+        }
+        .items-center {
+            align-items: center;
+        }
+        .items-end {
+            align-items: flex-end;
+        }
+        .items-start {
+            align-items: flex-start;
+        }
+        .flex-col {
+            flex-direction: column;
+        }
+        .flex-grow {
+            flex-grow: 1;
+        }
+        .grid {
+            display: grid;
+        }
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        .gap-4 {
+            gap: 16px;
+        }
+        .gap-6 {
+            gap: 24px;
+        }
+        .mb-2 { margin-bottom: 8px; }
+        .mb-3 { margin-bottom: 12px; }
+        .mb-4 { margin-bottom: 16px; }
+        .mb-5 { margin-bottom: 20px; }
+        .mb-6 { margin-bottom: 24px; }
+        .mb-8 { margin-bottom: 32px; }
+        .mt-4 { margin-top: 16px; }
+        .mt-6 { margin-top: 24px; }
+        .ml-2 { margin-left: 8px; }
+        .ml-4 { margin-left: 16px; }
+        .mr-2 { margin-right: 8px; }
+        .mr-3 { margin-right: 12px; }
+        .pr-2 { padding-right: 8px; }
+        .pt-2 { padding-top: 8px; }
+
+        /* Card Styles */
+        .verse-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            padding: 24px;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            position: relative; /* For delete button positioning */
+        }
+        .verse-card p {
+            margin: 0;
+        }
+        .verse-card .reference {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2563eb;
+            margin-bottom: 12px;
+        }
+        .verse-card .text {
+            color: #1f2937;
+            line-height: 1.625;
+            font-size: 16px;
+            flex-grow: 1;
+            margin-bottom: 16px;
+        }
+        .verse-card .meta {
+            font-size: 12px;
+            color: #6b7280;
+            text-align: right;
+        }
+
+        /* Section Styling */
+        .api-section, .custom-section {
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+            border: 1px solid;
+        }
+        .api-section {
+            background-color: #eff6ff; /* blue-50 */
+            border-color: #bfdbfe; /* blue-200 */
+        }
+        .custom-section {
+            background-color: #fffbeb; /* yellow-50 */
+            border-color: #fef3c7; /* yellow-200 */
+        }
+
+        /* Fetched Verse Display */
+        #fetched-verse-display {
+            margin-top: 24px;
+            padding: 16px;
+            background-color: #ffffff;
+            border: 1px dashed #93c5fd; /* blue-300 */
+            border-radius: 8px;
+        }
+        #fetched-verse-display p {
+            margin: 0;
+        }
+        #fetched-verse-ref {
+            color: #4b5563; /* gray-700 */
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        #fetched-verse-text {
+            color: #111827; /* gray-900 */
+            line-height: 1.625;
+            font-size: 18px;
+        }
+
+        /* No Verses Message */
+        #no-verses-message {
+            color: #6b7280;
+            text-align: center;
+            grid-column: 1 / -1; /* Span full width */
+        }
+
+        /* Custom Scrollbar */
+        #verses-list {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e0e0e0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #9ca3af;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+
+        /* Message Box */
+        #message-box, #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #message-box > div {
+            background-color: #ffffff;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            max-width: 384px;
+            width: 100%;
+            text-align: center;
+        }
+        #message-box-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+        #message-box-body {
+            color: #374151;
+            margin-bottom: 24px;
+        }
+        #message-box-ok-btn {
+            background-color: #2563eb;
+            color: #ffffff;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        #message-box-ok-btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* Loading Spinner */
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        #loading-overlay > div {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #3b82f6; /* blue-500 */
+            border-radius: 50%;
+            height: 64px;
+            width: 64px;
+        }
+        #loading-overlay p {
+            color: #ffffff;
+            margin-left: 16px;
+            font-size: 18px;
+        }
+
+
+        /* Responsive Adjustments */
+        @media (min-width: 768px) {
+            .md\:flex-row {
+                flex-direction: row;
+            }
+            .md\:mb-0 {
+                margin-bottom: 0;
+            }
+            /* Removed md:grid-cols-2 for verses-list */
+            .md\:grid-cols-3 {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            .md\:p-8 {
+                padding: 32px;
+            }
+            .md\:pt-0 {
+                padding-top: 0;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div id="app-container">
+        <!-- Loading Indicator -->
+        <div id="loading-overlay" class="hidden">
+            <div></div>
+            <p>Loading...</p>
+        </div>
+
+        <!-- Header -->
+        <h1>
+            <i class="fas fa-book-bible"></i>Verse Vault
+        </h1>
+
+        <!-- Main View: Saved Verses -->
+        <div id="main-view">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                <h2>Your Saved Verses</h2>
+                <button id="add-verse-btn">
+                    <i class="fas fa-plus-circle"></i>Add New Verse
+                </button>
+            </div>
+
+            <!-- Changed to single column layout -->
+            <div id="verses-list" class="grid grid-cols-1 gap-6">
+                <!-- Verses will be loaded here dynamically -->
+                <p id="no-verses-message">No verses saved yet. Add your first verse!</p>
+            </div>
+        </div>
+
+        <!-- Add Verse View -->
+        <div id="add-verse-view" class="hidden">
+            <button id="back-to-main-btn" class="mb-6">
+                <i class="fas fa-arrow-left"></i>Back to Saved Verses
+            </button>
+
+            <h2 style="text-align: center; margin-bottom: 24px;">Add a New Verse</h2>
+
+            <!-- Add from KJV.txt File Section -->
+            <div class="api-section mb-8">
+                <h3><i class="fas fa-book-reader"></i>Fetch from KJV.txt</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                    <div>
+                        <label for="book-select">Book:</label>
+                        <select id="book-select"></select>
+                    </div>
+                    <div>
+                        <label for="chapter-select">Chapter:</label>
+                        <select id="chapter-select">
+                            <option value="">Select Chapter</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end pt-2 md:pt-0">
+                        <div class="flex-grow">
+                            <label for="verse-input">Verse (Optional):</label>
+                            <input type="number" id="verse-input" placeholder="e.g., 16">
+                        </div>
+                        <div class="ml-4 flex items-center">
+                            <input type="checkbox" id="whole-chapter-checkbox">
+                            <label for="whole-chapter-checkbox" style="margin-bottom: 0;">Whole Chapter</label>
+                        </div>
+                    </div>
+                </div>
+                <button id="fetch-verse-btn">
+                    <i class="fas fa-search"></i>Fetch Verse
+                </button>
+
+                <!-- Fetched Verse Display -->
+                <div id="fetched-verse-display" class="hidden">
+                    <p id="fetched-verse-ref"></p>
+                    <p id="fetched-verse-text"></p>
+                    <button id="save-fetched-verse-btn" class="mt-4">
+                        <i class="fas fa-save"></i>Save Fetched Verse
+                    </button>
+                </div>
+            </div>
+
+            <!-- Custom Verse Input Section -->
+            <div class="custom-section">
+                <h3><i class="fas fa-pencil-alt"></i>Input Custom Verse</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                    <div>
+                        <label for="custom-book-input">Book:</label>
+                        <input type="text" id="custom-book-input" placeholder="e.g., John">
+                    </div>
+                    <div>
+                        <label for="custom-chapter-input">Chapter:</label>
+                        <input type="number" id="custom-chapter-input" placeholder="e.g., 3">
+                    </div>
+                    <div>
+                        <label for="custom-verse-numbers-input">Verse(s):</label>
+                        <input type="text" id="custom-verse-numbers-input" placeholder="e.g., 16 or 1-5">
+                    </div>
+                </div>
+                <div class="mb-5">
+                    <label for="custom-verse-text-area">Verse Text:</label>
+                    <textarea id="custom-verse-text-area" rows="6" placeholder="Type your custom verse text here..."></textarea>
+                </div>
+                <button id="save-custom-verse-btn">
+                    <i class="fas fa-bookmark"></i>Save Custom Verse
+                </button>
+            </div>
+        </div>
+
+        <!-- Custom Message Box -->
+        <div id="message-box" class="hidden">
+            <div>
+                <h3 id="message-box-title"></h3>
+                <p id="message-box-body"></p>
+                <button id="message-box-ok-btn">OK</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // DOM Elements
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const mainView = document.getElementById('main-view');
+        const addVerseView = document.getElementById('add-verse-view');
+        const addVerseBtn = document.getElementById('add-verse-btn');
+        const backToMainBtn = document.getElementById('back-to-main-btn');
+        const versesList = document.getElementById('verses-list');
+        const noVersesMessage = document.getElementById('no-verses-message');
+
+        // KJV.txt Fetch Elements
+        const bookSelect = document.getElementById('book-select');
+        const chapterSelect = document.getElementById('chapter-select');
+        const verseInput = document.getElementById('verse-input');
+        const wholeChapterCheckbox = document.getElementById('whole-chapter-checkbox');
+        const fetchVerseBtn = document.getElementById('fetch-verse-btn');
+        const fetchedVerseDisplay = document.getElementById('fetched-verse-display');
+        const fetchedVerseRef = document.getElementById('fetched-verse-ref');
+        const fetchedVerseText = document.getElementById('fetched-verse-text');
+        const saveFetchedVerseBtn = document.getElementById('save-fetched-verse-btn');
+
+        // Custom Verse Elements
+        const customBookInput = document.getElementById('custom-book-input');
+        const customChapterInput = document.getElementById('custom-chapter-input');
+        const customVerseNumbersInput = document.getElementById('custom-verse-numbers-input');
+        const customVerseTextArea = document.getElementById('custom-verse-text-area');
+        const saveCustomVerseBtn = document.getElementById('save-custom-verse-btn');
+
+        // Message Box Elements
+        const messageBox = document.getElementById('message-box');
+        const messageBoxTitle = document.getElementById('message-box-title');
+        const messageBoxBody = document.getElementById('message-box-body');
+        const messageBoxOkBtn = document.getElementById('message-box-ok-btn');
+
+        // Global variable to store parsed Bible data
+        let parsedBibleData = {}; // Structure: { "BOOK_ABBR": { chapterNum: { verseNum: "Verse text", ... }, ... }, ... }
+        let bookAbbreviations = []; // To store ordered list of book abbreviations
+
+        // Canonical order of Bible books (King James Version abbreviations)
+        const bibleBookOrder = [
+            "GEN", "EXO", "LEV", "NUM", "DEU", "JOS", "JDG", "RUT", "1SA", "2SA",
+            "1KI", "2KI", "1CH", "2CH", "EZR", "NEH", "EST", "JOB", "PSA", "PRO",
+            "ECC", "SNG", "ISA", "JER", "LAM", "EZE", "DAN", "HOS", "JOL", "AMO",
+            "OBA", "JON", "MIC", "NAM", "HAB", "ZEP", "HAG", "ZEC", "MAL", "MAT",
+            "MAR", "LUK", "JOH", "ACT", "ROM", "1CO", "2CO", "GAL", "EPH", "PHP",
+            "COL", "1TH", "2TH", "1TI", "2TI", "TIT", "PHM", "HEB", "JAM", "1PE",
+            "2PE", "1JO", "2JO", "3JO", "JUD", "REV"
+        ];
+
+
+        // --- Utility Functions ---
+
+        // Show/Hide Loading Overlay
+        const showLoading = () => loadingOverlay.classList.remove('hidden');
+        const hideLoading = () => loadingOverlay.classList.add('hidden');
+
+        // Custom Message Box function (replaces alert/confirm)
+        const showMessageBox = (title, message, onConfirm = null) => {
+            messageBoxTitle.textContent = title;
+            messageBoxBody.textContent = message;
+            messageBoxOkBtn.onclick = () => {
+                messageBox.classList.add('hidden');
+                if (onConfirm) onConfirm(true); // Callback for confirmation
+            };
+            messageBox.classList.remove('hidden');
+        };
+
+        // --- Local Storage Functions ---
+
+        // Loads verses from local storage
+        const loadVerses = () => {
+            try {
+                const storedVerses = localStorage.getItem('bibleVerses');
+                return storedVerses ? JSON.parse(storedVerses) : [];
+            } catch (e) {
+                console.error("Error loading verses from local storage:", e);
+                return [];
+            }
+        };
+
+        // Saves verses to local storage
+        const saveVerses = (verses) => {
+            try {
+                localStorage.setItem('bibleVerses', JSON.stringify(verses));
+            }
+            catch (e) {
+                console.error("Error saving verses to local storage:", e);
+                showMessageBox('Save Error', 'Failed to save verse. Local storage might be full or unavailable.');
+            }
+        };
+
+        // --- Display Saved Verses ---
+
+        const displayVerses = () => {
+            const verses = loadVerses();
+            versesList.innerHTML = ''; // Clear existing list
+
+            if (verses.length === 0) {
+                noVersesMessage.classList.remove('hidden');
+            } else {
+                noVersesMessage.classList.add('hidden');
+                // Sort verses by timestamp in descending order (newest first)
+                verses.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                verses.forEach((verse) => {
+                    const verseCard = document.createElement('div');
+                    verseCard.className = 'verse-card';
+                    verseCard.innerHTML = `
+                        <div class="flex justify-between items-start mb-3">
+                            <p class="reference">${verse.reference}</p>
+                            <button data-id="${verse.id}" class="delete-verse-btn" title="Delete Verse">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                        <p class="text">${verse.text}</p>
+                        <p class="meta">Source: ${verse.source} | Saved: ${new Date(verse.timestamp).toLocaleString()}</p>
+                    `;
+                    versesList.appendChild(verseCard);
+                });
+
+                // Add event listeners for delete buttons
+                document.querySelectorAll('.delete-verse-btn').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const idToDelete = event.currentTarget.dataset.id;
+                        showMessageBox('Confirm Delete', 'Are you sure you want to delete this verse?', (confirmed) => {
+                            if (confirmed) {
+                                deleteVerse(idToDelete);
+                            }
+                        });
+                    });
+                });
+            }
+        };
+
+        // --- Delete Verse ---
+        const deleteVerse = (idToDelete) => {
+            showLoading();
+            let verses = loadVerses();
+            const initialLength = verses.length;
+            verses = verses.filter(verse => verse.id !== idToDelete);
+
+            if (verses.length < initialLength) {
+                saveVerses(verses);
+                displayVerses();
+                showMessageBox('Deleted', 'Verse deleted successfully.');
+            } else {
+                showMessageBox('Error', 'Verse not found for deletion.');
+            }
+            hideLoading();
+        };
+
+
+        // --- Navigation ---
+        addVerseBtn.addEventListener('click', () => {
+            mainView.classList.add('hidden');
+            addVerseView.classList.remove('hidden');
+            fetchedVerseDisplay.classList.add('hidden');
+            fetchedVerseRef.textContent = '';
+            fetchedVerseText.textContent = '';
+        });
+
+        backToMainBtn.addEventListener('click', () => {
+            addVerseView.classList.add('hidden');
+            mainView.classList.remove('hidden');
+            displayVerses();
+        });
+
+        // --- KJV.txt Loading and Parsing ---
+
+        const loadKjvText = async () => {
+            showLoading();
+            try {
+                // Fetch 'kjv.txt' from the server
+                const response = await fetch('kjv.txt');
+                if (!response.ok) {
+                    throw new Error(`Failed to load kjv.txt: ${response.statusText} (Status: ${response.status})`);
+                }
+                const text = await response.text();
+
+                const lines = text.split('\n');
+                const tempBibleData = {};
+                const encounteredBookAbbreviations = new Set(); // Use a Set to get unique abbreviations in order of appearance
+
+                lines.forEach(line => {
+                    line = line.trim();
+                    if (!line) return; // Skip empty lines
+
+                    const parts = line.match(/^([A-Z0-9]+)\s(\d+):(\d+)\s(.*)/);
+                    if (parts) {
+                        const bookAbbr = parts[1];
+                        const chapterNum = parseInt(parts[2]);
+                        const verseNum = parseInt(parts[3]);
+                        const verseText = parts[4].trim();
+
+                        if (!tempBibleData[bookAbbr]) {
+                            tempBibleData[bookAbbr] = {};
+                        }
+                        if (!tempBibleData[bookAbbr][chapterNum]) {
+                            tempBibleData[bookAbbr][chapterNum] = {};
+                        }
+                        tempBibleData[bookAbbr][chapterNum][verseNum] = verseText;
+                        encounteredBookAbbreviations.add(bookAbbr); // Add to set to maintain order of first appearance
+                    } else {
+                        console.warn(`Skipping malformed line: ${line}`);
+                    }
+                });
+
+                parsedBibleData = tempBibleData;
+
+                // Filter the canonical order to only include books found in the text file,
+                // maintaining the canonical order.
+                bookAbbreviations = bibleBookOrder.filter(abbr => encounteredBookAbbreviations.has(abbr));
+
+                console.log('KJV.txt loaded and parsed successfully.');
+                populateBooks(); // Populate books after parsing
+            } catch (error) {
+                console.error('Error loading or parsing KJV.txt:', error);
+                showMessageBox('Data Load Error', `Failed to load Bible data: ${error.message}. Please ensure 'kjv.txt' is available and correctly formatted.`);
+            } finally {
+                hideLoading();
+            }
+        };
+
+        // Populate Book Dropdown
+        const populateBooks = () => {
+            bookSelect.innerHTML = '<option value="">Select Book</option>';
+            // Use the ordered bookAbbreviations array
+            bookAbbreviations.forEach(abbr => {
+                const option = document.createElement('option');
+                option.value = abbr;
+                option.textContent = abbr; // Display abbreviation
+                bookSelect.appendChild(option);
+            });
+        };
+
+        // Populate Chapter Dropdown based on selected book
+        const populateChapters = () => {
+            chapterSelect.innerHTML = '<option value="">Select Chapter</option>';
+            const selectedBookAbbr = bookSelect.value;
+            const bookChapters = parsedBibleData[selectedBookAbbr];
+
+            if (bookChapters) {
+                const chapters = Object.keys(bookChapters).map(Number).sort((a, b) => a - b);
+                chapters.forEach(chapterNum => {
+                    const option = document.createElement('option');
+                    option.value = chapterNum;
+                    option.textContent = chapterNum;
+                    chapterSelect.appendChild(option);
+                });
+            }
+        };
+
+        // Event listeners for book and chapter selection
+        bookSelect.addEventListener('change', populateChapters);
+
+        // Toggle verse input based on "Whole Chapter" checkbox
+        wholeChapterCheckbox.addEventListener('change', () => {
+            verseInput.disabled = wholeChapterCheckbox.checked;
+            verseInput.value = ''; // Clear verse input if whole chapter is selected
+        });
+
+        // --- Fetch Verse from KJV.txt Data ---
+        fetchVerseBtn.addEventListener('click', () => {
+            const bookAbbr = bookSelect.value;
+            const chapterNum = parseInt(chapterSelect.value);
+            const verseNum = parseInt(verseInput.value);
+            const isWholeChapter = wholeChapterCheckbox.checked;
+
+            if (!bookAbbr || isNaN(chapterNum)) {
+                showMessageBox('Missing Information', 'Please select a Book and a Chapter.');
+                return;
+            }
+
+            let verseText = '';
+            let reference = `${bookAbbr} ${chapterNum}`;
+
+            const bookData = parsedBibleData[bookAbbr];
+            if (!bookData || !bookData[chapterNum]) {
+                showMessageBox('Verse Not Found', 'Could not find the specified book or chapter.');
+                fetchedVerseDisplay.classList.add('hidden');
+                return;
+            }
+
+            if (isWholeChapter) {
+                const chapterVerses = bookData[chapterNum];
+                const sortedVerseNumbers = Object.keys(chapterVerses).map(Number).sort((a, b) => a - b);
+                if (sortedVerseNumbers.length === 0) {
+                     showMessageBox('Verse Not Found', 'No verses found for the selected chapter.');
+                     fetchedVerseDisplay.classList.add('hidden');
+                     return;
+                }
+                verseText = sortedVerseNumbers.map(vNum => `${vNum}. ${chapterVerses[vNum]}`).join(' ');
+            } else if (!isNaN(verseNum)) {
+                verseText = bookData[chapterNum][verseNum];
+                reference += `:${verseNum}`;
+            } else {
+                showMessageBox('Missing Information', 'Please enter a Verse number or check "Whole Chapter".');
+                fetchedVerseDisplay.classList.add('hidden');
+                return;
+            }
+
+            if (verseText) {
+                fetchedVerseRef.textContent = reference;
+                fetchedVerseText.textContent = verseText.trim();
+                fetchedVerseDisplay.classList.remove('hidden');
+            } else {
+                showMessageBox('Verse Not Found', 'Could not find the specified verse(s) in the loaded KJV text.');
+                fetchedVerseDisplay.classList.add('hidden');
+            }
+        });
+
+        // --- Save Fetched Verse to Local Storage ---
+        saveFetchedVerseBtn.addEventListener('click', async () => {
+            if (!fetchedVerseRef.textContent || !fetchedVerseText.textContent) {
+                showMessageBox('No Verse to Save', 'Please fetch a verse first.');
+                return;
+            }
+
+            const book = bookSelect.value;
+            const chapter = chapterSelect.value;
+            const verseNumbers = wholeChapterCheckbox.checked ? 'Whole Chapter' : verseInput.value;
+            const text = fetchedVerseText.textContent;
+            const reference = fetchedVerseRef.textContent;
+
+            showLoading();
+            try {
+                const verses = loadVerses();
+                verses.push({
+                    id: Date.now().toString(), // Assign a unique ID
+                    book: book,
+                    chapter: chapter,
+                    verseNumbers: verseNumbers,
+                    text: text,
+                    reference: reference,
+                    source: `KJV.txt (Local)`, // Updated source
+                    timestamp: new Date().toISOString()
+                });
+                saveVerses(verses);
+                showMessageBox('Success', 'Verse saved successfully!');
+                fetchedVerseDisplay.classList.add('hidden');
+                fetchedVerseRef.textContent = '';
+                fetchedVerseText.textContent = '';
+                addVerseView.classList.add('hidden');
+                mainView.classList.remove('hidden');
+                displayVerses();
+            } catch (error) {
+                console.error('Error saving fetched verse:', error);
+                showMessageBox('Save Error', `Failed to save verse: ${error.message}`);
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // --- Save Custom Verse to Local Storage ---
+        saveCustomVerseBtn.addEventListener('click', async () => {
+            const book = customBookInput.value.trim();
+            const chapter = customChapterInput.value.trim();
+            const verseNumbers = customVerseNumbersInput.value.trim();
+            const text = customVerseTextArea.value.trim();
+
+            if (!book || !chapter || !text) {
+                showMessageBox('Missing Information', 'Please fill in all required fields for your custom verse (Book, Chapter, Text).');
+                return;
+            }
+
+            showLoading();
+            try {
+                const verses = loadVerses();
+                verses.push({
+                    id: Date.now().toString() + 'custom', // Unique ID for custom verses
+                    book: book,
+                    chapter: chapter,
+                    verseNumbers: verseNumbers || 'Custom',
+                    text: text,
+                    reference: `${book} ${chapter}${verseNumbers ? ':' + verseNumbers : ''}`,
+                    source: 'Custom',
+                    timestamp: new Date().toISOString()
+                });
+                saveVerses(verses);
+                showMessageBox('Success', 'Custom verse saved successfully!');
+                customBookInput.value = '';
+                customChapterInput.value = '';
+                customVerseNumbersInput.value = '';
+                customVerseTextArea.value = '';
+                addVerseView.classList.add('hidden');
+                mainView.classList.remove('hidden');
+                displayVerses();
+            } catch (error) {
+                console.error('Error saving custom verse:', error);
+                showMessageBox('Save Error', `Failed to save custom verse: ${error.message}`);
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // --- Initial Load ---
+        window.onload = () => {
+            loadKjvText(); // Load the KJV text file and populate books
+            displayVerses(); // Display locally saved verses
+        };
+    </script>
+</body>
+</html>
